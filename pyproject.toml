@@ -1,7 +1,10 @@
 [project]
-name = "senior-thesis-tools"
+name = "senior-thesis"
 version = "0.1.0"
-description = "Add your description here"
+description = "卒論関連"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "beautifulsoup4>=4.14.2",
+    "path>=17.1.1",
+]
