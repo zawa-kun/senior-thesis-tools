@@ -3,3 +3,6 @@
 
 # vscode
 .vscode
+
+# APIキー
+.env
