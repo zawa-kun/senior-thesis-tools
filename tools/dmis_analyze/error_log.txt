@@ -4,3 +4,4 @@
 [2025-11-14 23:22:35] API呼び出しエラー（試行 1/3）: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
 [2025-11-14 23:22:40] API呼び出しエラー（試行 2/3）: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
 [2025-11-14 23:22:45] API呼び出しエラー（試行 3/3）: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+[2025-11-24 19:49:04] API呼び出しエラー（試行 1/3）: 504 Deadline Exceeded
