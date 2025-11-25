@@ -6,27 +6,24 @@ from sentence_transformers import SentenceTransformer, util
 
 # --- パスの設定 ---
 # 英語版のテキストファイルのパス
-TXT_PATH = Path(__file__).parent.parent / "data" / "raw" / "ineko_ver.txt"
+TXT_PATH = Path(__file__).parent.parent.parent / "papers" / "EdwinMcClellan.txt"
 # 日本語のCSVのパス
-CSV_PATH = Path(__file__).parent.parent / "data" / "processed" / "highlights_clean.csv"
+CSV_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "highlights.csv"
 # アラインメントのパス
-ALIGNMENT_PATH = Path(__file__).parent.parent / "data" / "raw" / "alignment.csv"
+ALIGNMENT_PATH = Path(__file__).parent.parent.parent / "data" / "raw" / "alignment_edwin_raw.csv"
 
-
+print(CSV_PATH, "を読み込みます")
 """文単位の分解"""
 # --- テキストファイルの読み込み ---
 with TXT_PATH.open("r", encoding="utf-8") as f:
-    text_en = f.read()
+    text_en_raw = f.read()
 
 # --- 改行やノイズの削除 --- 
-text = text_en.replace("\n", " ").replace("\r", " ")
-
-# --- 本編開始位置を検出 ---
-start_idx = text.find("PART I")
-text_main = text[start_idx:]
+text_en_clean = text_en_raw.replace("\n", " ").replace("\r", " ")
 
 # --- 文分割 ---
-sentences = sent_tokenize(text_main)
+sentences = sent_tokenize(text_en_clean)
+print(sentences[0])
 
 """CSVの読み込み"""
 # --- csv読み込み ---
