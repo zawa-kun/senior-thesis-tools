@@ -6,3 +6,6 @@
 
 # APIキー
 .env
+
+# 一時的なスクリプト
+check_columns.py
