@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卒業研究データ分析・検閲用チートシート</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --accent-color-dark: #2980b9;
+            --bg-color: #f5f6fa;
+            --border-color: #dcdde1;
+            --text-color: #2f3640;
+            --table-header-bg: #2c3e50;
+            --table-header-text: #ffffff;
+            --row-even: #ffffff;
+            --row-odd: #f8f9fa;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            background: #ecf0f1;
+            padding: 10px 15px;
+            border-left: 5px solid var(--accent-color);
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .note {
+            font-size: 0.9em;
+            color: #576574;
+            margin-bottom: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            color: var(--table-header-text);
+            text-align: left;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--row-odd);
+        }
+
+        tr:nth-child(odd) {
+            background-color: var(--row-even);
+        }
+
+        .keyword {
+            font-weight: bold;
+            color: #c0392b;
+            background: #fff0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .example {
+            color: #27ae60;
+            font-size: 0.95em;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .checklist li:before {
+            content: '□';
+            position: absolute;
+            left: 5px;
+            top: 10px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .checklist li:hover {
+            background-color: #f1f2f6;
+        }
+
+        .important {
+            font-weight: bold;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button.secondary {
+            background-color: #95a5a6;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none;
+            }
+            h2 {
+                background: none;
+                border-left: none;
+                border-bottom: 2px solid #ccc;
+                margin-top: 20px;
+            }
+            table {
+                page-break-inside: auto;
+            }
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="actions no-print">
+        <button onclick="downloadHTML()" class="secondary">📥 HTMLファイルを保存</button>
+        <button onclick="window.print()">🖨️ 印刷 / PDF保存</button>
+    </div>
+
+    <h1>卒業研究データ分析・検閲用チートシート</h1>
+    <div class="subtitle">
+        対象: 夏目漱石『こころ』（先生と遺書）英訳分析データ<br>
+        基準: Vinay & Darbelnet 翻訳技法 / Bennett DMIS 6段階モデル
+    </div>
+
+    <div class="note">
+        <strong>💡 検閲の目的</strong><br>
+        CSVデータの「Translation Procedure（翻訳技法）」と「DMIS Stage（異文化感受性段階）」の整合性を確認し、判定の揺れを修正すること。
+    </div>
+
+    <h2>1. ヴィネイ＆ダルベルネの翻訳技法 (Translation Procedures)</h2>
+    <p>あなたのデータセット（DMIS_INEKO.csv）の分析傾向に基づいた判定基準です。</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">分類 (技法)</th>
+                <th style="width: 40%;">定義と特徴</th>
+                <th style="width: 40%;">分析データの傾向・判定例</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1. 借用<br><small>(Borrowing)</small></td>
+                <td>SL(原語)をそのままTL(訳語)に持ち込む。<br>最も単純な翻訳方法。</td>
+                <td>
+                    <span class="keyword">頻出</span><br>
+                    <span class="example">例: Sensei, Yukata, Kamakura</span><br>
+                    日本固有の異質性を維持している。<br>
+                    → DMISは<strong>「受容」</strong>と相関が高い。
+                </td>
+            </tr>
+            <tr>
+                <td>2. 翻訳借用<br><small>(Calque)</small></td>
+                <td>SLの構造を保ったまま直訳する。<br>(例: 週末 → Week-end)</td>
+                <td>
+                    今回のデータではあまり見られない。<br>
+                    ※「直訳」に含まれている可能性あり。
+                </td>
+            </tr>
+            <tr>
+                <td>3. 直訳<br><small>(Literal)</small></td>
+                <td>文法的に正しい逐語訳。<br>文化的な意味替えを行わない。</td>
+                <td>
+                    <span class="keyword">頻出</span><br>
+                    <span class="example">例: 団扇 → Fan, 躑躅 → Azaleas</span><br>
+                    固有性を一般化して伝える。<br>
+                    → DMISは<strong>「最小化」</strong>になりやすい。
+                </td>
+            </tr>
+            <tr>
+                <td>4. 転換<br><small>(Transposition)</small></td>
+                <td>意味を変えずに品詞を変える。<br>(動詞 → 名詞、受動態 → 能動態など)</td>
+                <td>
+                    <span class="example">例: 「お墓参り」 → visit the grave</span><br>
+                    構造上の処理。<br>
+                    → DMIS判定は文脈によるが「最小化」が多い。
+                </td>
+            </tr>
+            <tr>
+                <td>5. 調整<br><small>(Modulation)</small></td>
+                <td>視点や思考のカテゴリーを変更する。<br>(具体 → 抽象、部分 → 全体など)</td>
+                <td>
+                    <span class="keyword">重要</span> データ内の<b>「調整」</b>は主にこれ。<br>
+                    <span class="example">例: 畷 → a long lane (畦道→長い道へ一般化)</span><br>
+                    固有性を薄めるため<strong>「最小化」</strong>へ。
+                </td>
+            </tr>
+            <tr>
+                <td>6. 等価<br><small>(Equivalence)</small></td>
+                <td>同じ状況を全く異なる文体・慣用句で表現する。</td>
+                <td>
+                    <span class="example">例: お気の毒 → I am sorry</span><br>
+                    機能的意味を優先。<br>
+                    → 文化差が見えなくなるため<strong>「最小化」</strong>または<strong>「適応」</strong>。
+                </td>
+            </tr>
+            <tr>
+                <td>7. 翻案<br><small>(Adaptation)</small></td>
+                <td>SLの文化要素をTLの文化要素に置き換える。<br>究極の意訳。</td>
+                <td>
+                    <span class="keyword">注意</span> データでは<b>「削除」</b>もここに分類。<br>
+                    <span class="example">例: 炬燵 → Fireplace, 将棋 → Chess</span><br>
+                    → DMISは「削除」なら<strong>「否認」</strong>、「置換」なら<strong>「適応」</strong>。
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>2. DMIS (異文化感受性発達モデル) 判定ガイド</h2>
+    <p>翻訳者が「読者に文化差をどう感じさせようとしたか（あるいは隠そうとしたか）」で判定します。</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">段階 (Stage)</th>
+                <th style="width: 40%;">翻訳における解釈</th>
+                <th style="width: 40%;">判定のヒント (キーワード)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background-color: #fff0f0;">
+                <td colspan="3" style="text-align: center; color: #c0392b; font-weight: bold;">▼ 自文化中心主義 (Ethnocentrism) - 文化差の回避</td>
+            </tr>
+            <tr>
+                <td>1. 否認<br><small>(Denial)</small></td>
+                <td>文化差の存在を認識しない/回避する。<br><strong>翻訳対応：削除、完全な隠蔽</strong></td>
+                <td>
+                    <span class="keyword">削除, 省略</span><br>
+                    原文にある要素が訳文で完全に消えている。<br>
+                    <span class="example">例: 「小春」→ evening (季節感の消失)</span>
+                </td>
+            </tr>
+            <tr>
+                <td>2. 防御<br><small>(Defense)</small></td>
+                <td>自文化が優位。差異を脅威と感じる。<br><strong>翻訳対応：差別的・侮蔑的な訳出</strong></td>
+                <td>
+                    ※通常の文芸翻訳では稀。<br>
+                    意図的に日本文化を悪く、奇妙に描いている場合のみ。
+                </td>
+            </tr>
+            <tr>
+                <td>3. 最小化<br><small>(Minimization)</small></td>
+                <td>「人間はみな同じ」として差異を目立たなくする。<br><strong>翻訳対応：一般化、直訳、説明的訳</strong></td>
+                <td>
+                    <span class="keyword">直訳, 調整</span><br>
+                    日本固有のものを一般的な言葉（上位概念）にする。<br>
+                    <span class="example">例: 団扇 → Fan, 浴衣 → Clothes</span>
+                </td>
+            </tr>
+            <tr style="background-color: #e8f4fc;">
+                <td colspan="3" style="text-align: center; color: #2980b9; font-weight: bold;">▼ 文化相対主義 (Ethnorelativism) - 文化差の追求</td>
+            </tr>
+            <tr>
+                <td>4. 受容<br><small>(Acceptance)</small></td>
+                <td>文化差を認め、尊重する。<br><strong>翻訳対応：借用、異化翻訳</strong></td>
+                <td>
+                    <span class="keyword">借用 (Borrowing)</span><br>
+                    イタリック体やローマ字表記。<br>
+                    <span class="example">例: <i>Sensei</i>, <i>Kotatsu</i></span>
+                </td>
+            </tr>
+            <tr>
+                <td>5. 適応<br><small>(Adaptation)</small></td>
+                <td>相手文化の視点を取り入れる（共感）。<br><strong>翻訳対応：帰化翻訳、文化的置換</strong></td>
+                <td>
+                    <span class="keyword">翻案 (Adaptation)</span><br>
+                    読者が自文化の文脈で違和感なく読めるよう変更。<br>
+                    <span class="example">例: 襖 → Sliding doors (機能優先の置換)</span>
+                </td>
+            </tr>
+            <tr>
+                <td>6. 統合<br><small>(Integration)</small></td>
+                <td>複数の文化的枠組みを行き来する。<br><strong>翻訳対応：借用＋注釈、ハイブリッド</strong></td>
+                <td>
+                    <span class="keyword">借用 ＋ 注釈</span><br>
+                    異質性(借用)と理解(注釈)の両立。<br>
+                    <span class="example">例: Yukata + 脚注による解説</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>3. データ検閲（レビュー）チェックリスト</h2>
+    <ul class="checklist">
+        <li>
+            <span class="important">[用語統一]</span> 
+            「借用」している語（Sensei, Yukata等）は、すべてDMIS「受容」または「統合」になっていますか？<br>
+            <span class="note" style="display:inline-block; margin-top:5px;">Check: これが「最小化」になっていたら修正が必要です。</span>
+        </li>
+        <li>
+            <span class="important">[削除の扱い]</span> 
+            「削除」された箇所は、意図的な省略としてDMIS「否認」に分類されていますか？ <br>
+            単なる言葉の綾で省略されたものを「最小化」と混同していませんか？
+        </li>
+        <li>
+            <span class="important">[直訳 vs 最小化]</span> 
+            「直訳（Literal）」の手法をとった結果、文化的な色が消えている場合はDMIS「最小化」です。<br>
+            逆に直訳の結果、英語として異質さが際立つ（変な英語になる）場合は「受容」の可能性があります。
+        </li>
+        <li>
+            <span class="important">[注釈の有無]</span> 
+            原文にない説明（注釈）が訳文にある場合、単なる「借用（受容）」ではなく、「統合」への分類を検討しましたか？
+        </li>
+        <li>
+            <span class="important">[備考欄の活用]</span> 
+            「なぜその判定にしたか」の理由が備考欄に簡潔に記されていますか？<br>
+            <span class="note" style="display:inline-block; margin-top:5px;">重要: 論文執筆時にこの備考欄が最大の根拠になります。</span>
+        </li>
+    </ul>
+
+</div>
+
+<script>
+    function downloadHTML() {
+        const htmlContent = document.documentElement.outerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'analysis_cheat_sheet.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+</body>
+</html>
