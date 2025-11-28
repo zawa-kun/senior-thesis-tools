@@ -39,10 +39,10 @@ RETRY_DELAY = 5  # リトライ待機時間（秒）
 
 
 # --- ファイルパスの設定 ---
-INPUT_CSV_PATH = "alignment_ineko.csv"
-# INPUT_CSV_PATH = "test_data.csv" # test
-OUTPUT_CSV_PATH = "dmis_ineko.csv"
-# OUTPUT_CSV_PATH = "test_data_analyzed.csv"
+# INPUT_CSV_PATH = "alignment_ineko.csv"
+INPUT_CSV_PATH = "test_data.csv" # test
+# OUTPUT_CSV_PATH = "dmis_ineko.csv"
+OUTPUT_CSV_PATH = "test_data_analyzed2.csv"
 LOG_FILE = "error_log.txt"  # エラーログ
 
 
@@ -86,15 +86,40 @@ def create_prompt(highlight_jp, highlight_en, note="", annotation=""):
 
 分析手順（厳守）：
 
-1. 翻訳手法を、ヴィネイ&ダルベルネの7分類の中から最も適切なものを1つだけ選択する。
+1. 翻訳手法を、以下の中から最も適切なものを1つだけ選択する。
 【翻訳手法】
-- 借用：原語の音をアルファベット表記で持ち込む（例：畳 → tatami）
-- 仮借：英語として不自然であっても、原文の単語構成を直訳的に再現する（例：science fiction → 科学幻想）
-- 直訳：文構造を基本維持した自然な逐語訳
-- 転換：品詞・文法カテゴリを変えて意味保持（名詞→動詞など）
-- 調整：視点／概念の枠組みを変える（抽象↔具体、部分↔全体）
-- 等価：慣用表現をTL側の自然な表現へ置換
-- 翻案：文化状況そのものを置き換えて意味機能を揃える
+1. Borrowing（借用）: 日本語の語句をそのまま音写（ローマ字化）して使用する。補足説明はない。
+- 例：「先生」-> "Sensei"
+
+2. Amplification（増幅）: 「Borrowing（借用）」に加え、原文にない詳細（情報や説明的パラフレーズ）を加える。
+- 例：「先生」-> "Sensei,〈補足説明〉"
+
+3. Calque（仮借）: 外国語の語句を逐語訳して取り入れる。語順は保たれる必要はない。
+- 例：「右大臣」-> "Minister of the Right" 語義的なCalque, 「森林浴」-> "forest bathing" 構造的なCalque
+
+4. Literal translation（直訳）: 語句を逐語的に訳すが、形式・機能・意味が一致する場合に限る。辞書的な意味通り。
+- 例：「父」->"father"
+
+5. Established equivalent（定着した等価）: 辞書や慣用表現として認められている等価語を使用する
+- 例：「酒」 -> "rice wine"、「畳」-> "Straw mat"
+
+6. Generalization（一般化）: より一般的・中立的な用語を使用する。抽象化すること。
+- 例：「書生」 -> "student"
+
+7. Particularization（具体化）: より具体的・精密な用語を使用する(文脈から具体名を特定する場合等)
+- 例：「花」-> "cherry blossoms"
+
+8. Description（記述）: 原文の言葉を使わずに用語をその形態や機能の説明に置き換える
+（例：「こたつ」 -> "a heated table covered with a quilt"）
+
+9.  Adaptation（適応）: 原文の文化的要素を、ターゲット文化の要素に置き換える
+- 例：「サッカー」->"baseball"、「将棋」-> "chess"
+
+10. Modulation（変調）: 視点や認知的カテゴリーを変更する。肯定・否定の反転や、受動・能動の切り替え、部分と全体の関係変更。
+- 例：「死ぬ」-> "stop living", 「父になる」-> "have a child"）
+
+11. Reduction（削減）: 原文の情報項目を省略する。原文にあった文化的要素が訳文に無くなる。
+- 例：「鳶色のカステラ」-> "cake"(「鳶色」という情報が消えている)
 
 
 2. キーワード（文化的要素）の扱いに基づき、翻訳者が意図的に“どの DMIS モード（否認〜統合）を採用したか”を1つ選択する。
@@ -127,6 +152,40 @@ def create_prompt(highlight_jp, highlight_en, note="", annotation=""):
 the sensei,借用,受容,原文「先生」を「the sensei」と借用し、日本語固有の敬称の文化的差異をそのまま提示し、読者にその受容を求めている。
 
 ※ 必ず4項目をカンマ区切りで1行のみ出力する。
+
+
+入力と出力の例
+入力: 【日本語原文】 私はその人を常に先生と呼んでいた。だから～～使う気にならない 【英訳】 I never called him anything else, so I will write about him here only as the sensei without mentioning his name... 【キーワード】 先生
+
+出力: the sensei,Borrowing,受容,原文「先生」を「the sensei」と借用し、日本語特有の敬称をそのまま提示することで、読者に日本文化の敬意表現の受容を促している。
+
+入力: 【日本語原文】 先生は白絣の上へ兵児帯を締めてから、眼鏡の失くなったのに気が付いたと見えて、急にそこいらを探し始めた。 【英訳】 It was not until he fastened hekoobi¹ around his shirogasuri yukata that he discovered his loss... 【キーワード】 白絣 【注釈】 2 A kind of cotten cloth.
+
+出力: shirogasuri yukata,Amplification,適応,「白絣」を「shirogasuri」と借用しつつ「yukata」と注釈で補足（増幅）することで、読者が機能的に理解できるよう適応させている。
+
+入力: 【日本語原文】 玉突きだのアイスクリームだのというハイカラなものには長い畷を一つ越さなければ手が届かなかった。 【英訳】 We could not reach such fashionable enjoyments as billiards or ice-cream without traversing a long lane between the rice-fields... 【キーワード】 畷
+
+出力: a long lane between the rice-fields,Description,適応,「畷」という語を用いず「a long lane between the rice-fields」と形態・機能を記述し、読者が情景を機能的に理解できるよう適応している。
+
+入力: 【日本語原文】 私は先生に手紙を書いて恩借の礼を述べた。正月上京する時に持参するからそれまで待ってくれるようにと断わった。 【英訳】 ...told him that would bring it back when I returned to Tokyo in January. 【キーワード】 正月
+
+出力: January,Generalization,最小化,「正月」という文化行事を「January」という一般的な暦月に一般化し、文化的な差異を普遍的な時期の情報に収束（最小化）させている。
+
+入力: 【日本語原文】 それで私は座敷へ上がって、先生を待つ間、奥さんと話をした。 【英訳】 So I had a talk with his wife while I waited in his drawing-room. 【キーワード】 座敷
+
+出力: drawing-room,Adaptation,最小化,「座敷」を機能的に近い「drawing-room（応接間）」に置き換えることで、日本独自の住環境の差異を隠蔽し、ターゲット文化に馴染ませている（最小化）。
+
+入力: 【日本語原文】 「私はお気の毒に思うのです」 【英訳】 ”I am sorry for you.” 【キーワード】 お気の毒
+
+出力: sorry for you,Established equivalent,最小化,「お気の毒」を「sorry for you」という定着した等価表現で訳し、日本語特有の感情表現を普遍的な同情に収束させ、文化差を最小化している。
+
+入力: 【日本語原文】 その時生垣の向うで金魚売りらしい声がした。 【英訳】 As he spoke, a voice which seemed to be a goldfish vendor's was heard from across the hedge. 【キーワード】 金魚売り
+
+出力: goldfish vendor,Calque,適応,「金魚売り」を「goldfish vendor」と語義的に直訳（カルク）し、日本的な行商人の機能をターゲット読者が理解できるよう適応させている。
+
+入力: 【日本語原文】 すぐその中からチョコレートを塗った鳶色のカステラを出して頰張った。 【英訳】 ...I at once attacked one decorated with chocolate. 【キーワード】 鳶色
+
+出力: なし,Reduction,否認,訳文では「鳶色」に相当する色情報が完全に削除されており、文化差の存在を否認（無視）している。
 """
     return prompt
 
