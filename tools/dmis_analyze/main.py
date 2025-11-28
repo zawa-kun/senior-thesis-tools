@@ -41,7 +41,7 @@ RETRY_DELAY = 5  # リトライ待機時間（秒）
 # --- ファイルパスの設定 ---
 # INPUT_CSV_PATH = "alignment_ineko.csv"
 INPUT_CSV_PATH = "test_data.csv" # test
-# OUTPUT_CSV_PATH = "dmis_ineko.csv"
+# OUTPUT_CSV_PATH = "analyzed_ineko.csv"
 OUTPUT_CSV_PATH = "test_data_analyzed2.csv"
 LOG_FILE = "error_log.txt"  # エラーログ
 
