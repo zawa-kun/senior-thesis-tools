@@ -39,9 +39,9 @@ RETRY_DELAY = 5  # リトライ待機時間（秒）
 
 
 # --- ファイルパスの設定 ---
-INPUT_CSV_PATH = "alignment_ineko.csv"
+INPUT_CSV_PATH = "proc_alignment_edwin.csv"
 # INPUT_CSV_PATH = "test_data.csv" # test
-OUTPUT_CSV_PATH = "analyzed_ineko.csv"
+OUTPUT_CSV_PATH = "test_analyzed_edwin.csv"
 # OUTPUT_CSV_PATH = "test_data_analyzed2.csv"
 LOG_FILE = "error_log.txt"  # エラーログ
 
@@ -376,8 +376,8 @@ def main():
     # 出力列が存在しない場合は追加
     if "文化的要素の英訳句/語" not in df.columns:
         df["文化的要素の英訳句/語"] = ""
-    if "ヴィネイとダルベルネの翻訳7分類" not in df.columns:
-        df["ヴィネイとダルベルネの翻訳7分類"] = ""
+    if "Molina&Albirの翻訳分類" not in df.columns:
+        df["Molina&Albirの翻訳分類"] = ""
     if "ベネットの異文化感受性モデル" not in df.columns:
         df["ベネットの異文化感受性モデル"] = ""
     if "備考" not in df.columns:
@@ -406,7 +406,7 @@ def main():
         if pd.isna(highlight_jp) or pd.isna(highlight_en):
             log_error(f"行{index + 2}: 必須データが欠落")
             df.at[index, "ヴィネイとダルベルネの翻訳7分類"] = "データ欠落"
-            df.at[index, "ベネットの異文化感受性モデル"] = "データ欠落"
+            df.at[index, "Molina&Albirの翻訳分類"] = "データ欠落"
             df.at[index, "備考"] = "Highlight_JPまたはHighlight_ENが空です"
             error_count += 1
             continue
@@ -422,7 +422,7 @@ def main():
         
         # DataFrameに書き込み
         df.at[index, "文化的要素の英訳句/語"] = translated_term
-        df.at[index, "ヴィネイとダルベルネの翻訳7分類"] = method
+        df.at[index, "Molina&Albirの翻訳分類"] = method
         df.at[index, "ベネットの異文化感受性モデル"] = sensitivity
         df.at[index, "備考"] = remark
         
