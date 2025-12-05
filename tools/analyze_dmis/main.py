@@ -44,7 +44,7 @@ OUTPUT_CSV_PATH = "test_analyzed.csv"
 LOG_FILE = "error_log.txt"  # エラーログ
 
 
-def create_prompt(highlight_jp, highlight_en, note="", annotation=""):
+def create_prompt(highlight_jp, highlight_en, note="", annotation="",translation_correspondence=""):
     """
     Gemini APIに送るプロンプトを生成
 
@@ -60,7 +60,8 @@ def create_prompt(highlight_jp, highlight_en, note="", annotation=""):
     # 空欄の場合は「なし」に変換
     note = note if pd.notna(note) and note.strip() else "なし"
     annotation = annotation if pd.notna(annotation) and annotation.strip() else "なし"
-    
+    translation_correspondence = translation_correspondence if pd.notna(translation_correspondence) and translation_correspondence.strip() else "なし"
+
     prompt = f"""以下の日本語原文と英訳を、一つの文化要素（キーワード）に焦点を当てて分析してください。
 
 【日本語原文】
@@ -75,80 +76,53 @@ def create_prompt(highlight_jp, highlight_en, note="", annotation=""):
 【注釈】
 {annotation}
 
+【文化的要素の対応訳】
+{translation_correspondence}
+
 ---
 
 あなたの役割：
-翻訳研究者として、指定されたキーワード（文化的要素）がどのように翻訳されているかを分析し、
-以下の翻訳技法分類に基づいて分類してください。
+異文化コミュニケーションおよび翻訳研究の専門家として、
+「日本に関する知識が皆無の読者（Aさん）」が、翻訳テキストを通じて文化的要素をどの程度の深さで理解できる状態にあるかを、
+客観的な第三者（統合の視点を持つ分析者）として判定してください。
 
 分析手順（厳守）：
 
-1. 翻訳技法を、以下の中から最も適切なものを1つだけ選択する。
-【翻訳技法】
-- Borrowing: 日本語の語句をそのまま音写（ローマ字化）して使用する。`英訳`にも`注釈`にも一切補足説明がない場合のみ適用する。
-    - 例：「先生」-> "Sensei"
+1. 文脈の確認：
+   入力された【文化的要素の対応訳】だけでなく、必ず【英訳】全体の文脈を確認してください。
+   特に、対応訳がどのように形容されているか（形容詞）、どう扱われているか（動詞）に注目してください。
 
-- Amplification: 「Borrowing（借用）」に加え、原文にない詳細（情報や説明的パラフレーズ）を加える。`注釈`に補足説明がある場合もAmplificationにあたる。
+2. 段階の判定：
+   以下の【DMIS定義表】に基づき、翻訳テキストがAさんを強制的に置く認知段階を1つだけ特定してください。
 
-    - 例：「先生」-> "Sensei,〈詳細〉"、「先生」 -> "Sensei"+注釈でSenseiについての説明、「先生」など
-    - 補足：この「詳細」には、訳文の脚注や注釈（{annotation}）に含まれる説明も含むこととする。
+【DMIS定義表（6段階モデル）】
 
-- Calque: 外国語の語句を逐語訳して取り入れる。語順は保たれる必要はない。
+| DMIS段階 | 判定基準（翻訳テキストの特性） | 読者（Aさん）の文化的要素に対する認知状態 |
+| :--- | :--- | :--- |
+| **Denial (否認)** | **【削除・不可視化】**<br>文化的要素が完全に削除・省略されている。または全く意味不明な訳語。 | **認識不可 / 無関心**<br>要素をノイズとして無視するしかない状態。 |
+| **Defense (防衛)** | **【異化の強調・不全】**<br>不自然な直訳や過度な異国趣味により、「奇妙なもの」「不気味なもの」として提示されている。<br>（否定的な形容詞や文脈が含まれる場合もここ） | **拒絶 / 脅威**<br>「奇妙だ」「劣っている」と否定的に捉える状態。 |
+| **Minimization (最小化)** | **【自文化への置き換え】**<br>自文化の既知の概念（等価物）に完全に置換している。<br>★重要：文化的要素の**固有性（違い）が消えている**場合はここ。 | **同化 / 普遍的理解**<br>「私の国と同じだ」と誤って処理し、固有性を意識しない状態。 |
+| **Acceptance (受容)** | **【差異の提示】**<br>音写などでそのまま提示し、安易な置き換えを避けている。補足説明はほぼない。<br>★重要：**固有性（違い）が残っている**場合はここ。 | **差異の認識**<br>「私の国とは違う」と認識し、受け入れようとする状態。 |
+| **Adaptation (適応)** | **【橋渡し・厚い記述】**<br>詳細な補足や背景説明（文中説明や訳注）を加え、機能や文脈を論理的・感情的に説明している。<br>（音写＋補足説明など） | **共感 / 文脈的理解**<br>「向こうではこう機能する」と一時的に視点を転換できる状態。 |
+| **Integration (統合)** | **【比較・相対化の提示】**<br>自文化と異文化の価値観を対比させ、読者自身の常識やアイデンティティを問い直す記述がある。 | **相対化・再構築**<br>「私の常識も一つの偏りだ」とメタ的に自己内省する状態。 |
 
-    - 例：「右大臣」-> "Minister of the Right" 語義的な Calque, 「森林浴」-> "forest bathing" 構造的な Calque
-
-- Literal translation: 語句を逐語的に訳すが、形式・機能・意味が一致する場合に限る。辞書的な意味通り。
-
-    - 例：「父」->"father"
-
-- Established equivalent: 辞書や慣用表現として認められている等価語を使用する
-
-    - 例：「酒」 -> "rice wine"、「畳」-> "Straw mat"
-
-- Generalization: より一般的・中立的な用語を使用する。抽象化すること。
-
-    - 例：「書生」 -> "student"
-
-- Particularization: より具体的・精密な用語を使用する(文脈から具体名を特定する場合等)
-
-    - 例：「花」-> "cherry blossoms"
-
-- Description: 原文の言葉を使わずに用語をその形態や機能の説明に置き換える
-    - 例：「こたつ」 -> "a heated table covered with a quilt"）
-
-- Adaptation: 原文の文化的要素を、ターゲット文化の要素に置き換える
-
-    - 例：「サッカー」->"baseball"、「将棋」-> "chess"
-
-- Modulation: 視点や認知的カテゴリーを変更する。肯定・否定の反転や、受動・能動の切り替え、部分と全体の関係変更。
-
-    - 例：「死ぬ」-> "stop living", 「父になる」-> "have a child"）
-
-- Reduction: 原文の情報項目を省略する。原文にあった文化的要素が訳文に無くなる。
-
-    - 例：「鳶色のカステラ」-> "cake"(「鳶色」という情報が消えている)
-
-2. 100文字以内で、翻訳技法を選択した根拠を、必ず原文と訳文の具体例を引用しながら簡潔に述べる。
-※ 文全体ではなく、必ず「キーワード（文化的要素）」の翻訳を中心に扱うこと。
+回答作成のルール：
+- **文脈依存性：** 対応訳単体ではなく、文全体での扱われ方を根拠にすること。
+- **最小化 vs 適応：** 固有性が消えていれば「最小化」、残っていれば「受容」以上とする。
+- **適応 vs 統合：** 読者の価値観への問いかけがなければ「適応」に留めること。
 
 回答形式（必ずこの1行形式）：
-**文化的要素の対応訳,翻訳技法,翻訳技法の選出理由**
+**DMIS段階,そのDMISであると考えられる理由**
 
-例：
-Sensei,Borrowing,原文「先生」を「Sensei」と音写し、補足説明を加えていないため。		
-sake, a kind of Japanese rice wine,Amplification,原文「酒」を「sake」と借用しつつ「a kind of Japanese rice wine」と説明（増幅）を加えているため。		
-Minister of the Right,Calque,「右大臣」を「Minister of the Right」と語義的に逐語訳（仮借）しているため。		
-father,Literal translation,「父」を「father」と辞書的な意味の通りに直訳し、形式・機能・意味が一致しているため。		
-Straw mat,Established equivalent,「畳」を英語圏で定着している訳語「Straw mat」で対応させているため。		
-student,Generalization,「書生」という特定の身分の学生を、より一般的な用語である「student」に一般化しているため。		
-cherry blossoms,Particularization,「花」を、文脈上最も具体的な種である「cherry blossoms」に具体化しているため。		
-a heated table covered with a quilt,Description,「こたつ」という用語を使わず、その形態や機能（heated table covered with a quilt）を説明しているため。		
-chess,Adaptation,「将棋」という文化要素を、ターゲット文化圏で機能的に近い「chess」に置き換えているため。		
-stop living,Modulation,「死ぬ」という概念を、視点を変えて「stop living」という否定表現で訳しているため。		
-cake,Reduction,原文にあった「鳶色」に相当する色情報が訳文の「cake」では完全に省略されているため。
+出力例：
+Denial,原文にあった色彩情報が訳文では完全に削除されており、読者はその要素の存在自体を認知できないため。
+Defense,文脈なしに直訳しており、読者には意味不明な異物として奇妙に映り、理解を拒絶させる可能性があるため。
+Minimization,「書生」を一般的な「student」に置き換えており、読者は固有性を意識せず自国の学生と同じものとして処理するため。
+Acceptance,補足なく音写しており、読者に意味は不明確ながらも「自文化にはない固有の概念」として差異を認識させているため。
+Adaptation,音写に加え「布団で覆われた暖房器具」という機能説明があり、読者はその形状と用途を具体的にイメージし共感できるため。
+Integration,西洋の美意識と対比して説明しており、読者自身の「美」に対する固定観念を相対化させ、複合的な視点を与えているため。
 
-
-※ 必ず3項目をカンマ区切りで1行のみ出力する。
+※ 必ず2項目をカンマ区切りで1行のみ出力する。
 """
     return prompt
 
@@ -199,27 +173,26 @@ def call_gemini_api(prompt, retries=MAX_RETRIES):
 
 def parse_response(response_text):
     """
-    APIの回答をパースして3項目に分割
+    APIの回答をパースして2項目に分割
     
     Args:
         response_text (str): APIからの回答
         
     Returns:
-        tuple: (文化的要素の対応訳, 翻訳技法, 翻訳技法の選出理由)
+        tuple: (DMIS, DMISの選出理由)
     """
     if not response_text:
         return "API呼び出し失敗", "API呼び出し失敗", "APIからの応答がありませんでした"
     
     try:
-        # カンマで分割（最大3分割）
-        parts = response_text.split(',', 2)
+        # カンマで分割（最大2分割）
+        parts = response_text.split(',', 1)
 
         # 3項目が揃っているか確認
-        if len(parts) >= 3:
-            translated_term = parts[0].strip()
-            method = parts[1].strip()
-            reason = parts[2].strip()
-            return translated_term, method, reason
+        if len(parts) >= 2:
+            dmis = parts[0].strip()
+            reason = parts[1].strip()
+            return dmis, reason
         else:
             # 形式が不正な場合
             return "解析エラー", "解析エラー", f"形式不正: {response_text}"
@@ -334,12 +307,10 @@ def main():
     print()
     
     # 出力列が存在しない場合は追加
-    if "文化的要素の対応訳" not in df.columns:
-        df["文化的要素の対応訳"] = ""
-    if "翻訳技法" not in df.columns:
-        df["翻訳技法"] = ""
-    if "翻訳技法の選出理由" not in df.columns:
-        df["翻訳技法の選出理由"] = ""
+    if "DMIS" not in df.columns:
+        df["DMIS"] = ""
+    if "DMISの選出理由" not in df.columns:
+        df["DMISの選出理由"] = ""
     
     # ========================================
     # 3. 行ごとのループ処理
@@ -359,31 +330,31 @@ def main():
         highlight_en = row.get("Highlight_EN", "")
         note = row.get("Note", "")
         annotation = row.get("注釈", "")
-        
+        translation_correspondence = row.get("文化的要素の対応訳","")
+
         # 必須項目チェック
         if pd.isna(highlight_jp) or pd.isna(highlight_en):
             log_error(f"行{index + 2}: 必須データが欠落")
-            df.at[index, "翻訳技法"] = "データ欠落"
-            df.at[index, "翻訳技法の選出理由"] = "Highlight_JPまたはHighlight_ENが空です"
+            df.at[index, "DMIS"] = "データ欠落"
+            df.at[index, "DMISの選出理由"] = "Highlight_JPまたはHighlight_ENが空です"
             error_count += 1
             continue
         
         # プロンプト生成
-        prompt = create_prompt(highlight_jp, highlight_en, note, annotation)
+        prompt = create_prompt(highlight_jp, highlight_en, note, annotation, translation_correspondence)
         
         # API呼び出し
         response = call_gemini_api(prompt)
         
         # 回答をパース
-        translated_term, method, reason = parse_response(response)
+        dmis, reason = parse_response(response)
         
         # DataFrameに書き込み
-        df.at[index, "文化的要素の対応訳"] = translated_term
-        df.at[index, "翻訳技法"] = method
-        df.at[index, "翻訳技法の選出理由"] = reason
+        df.at[index, "DMIS"] = dmis
+        df.at[index, "DMISの選出理由"] = reason
         
         # 成功カウント
-        if "エラー" not in method and "失敗" not in method:
+        if "エラー" not in dmis and "失敗" not in dmis:
             success_count += 1
         else:
             error_count += 1
