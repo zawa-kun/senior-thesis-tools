@@ -173,27 +173,26 @@ def call_gemini_api(prompt, retries=MAX_RETRIES):
 
 def parse_response(response_text):
     """
-    APIの回答をパースして3項目に分割
+    APIの回答をパースして2項目に分割
     
     Args:
         response_text (str): APIからの回答
         
     Returns:
-        tuple: (文化的要素の対応訳, 翻訳技法, 翻訳技法の選出理由)
+        tuple: (DMIS, DMISの選出理由)
     """
     if not response_text:
         return "API呼び出し失敗", "API呼び出し失敗", "APIからの応答がありませんでした"
     
     try:
-        # カンマで分割（最大3分割）
-        parts = response_text.split(',', 2)
+        # カンマで分割（最大2分割）
+        parts = response_text.split(',', 1)
 
         # 3項目が揃っているか確認
-        if len(parts) >= 3:
-            translated_term = parts[0].strip()
-            method = parts[1].strip()
-            reason = parts[2].strip()
-            return translated_term, method, reason
+        if len(parts) >= 2:
+            dmis = parts[0].strip()
+            reason = parts[1].strip()
+            return dmis, reason
         else:
             # 形式が不正な場合
             return "解析エラー", "解析エラー", f"形式不正: {response_text}"
@@ -308,12 +307,10 @@ def main():
     print()
     
     # 出力列が存在しない場合は追加
-    if "文化的要素の対応訳" not in df.columns:
-        df["文化的要素の対応訳"] = ""
-    if "翻訳技法" not in df.columns:
-        df["翻訳技法"] = ""
-    if "翻訳技法の選出理由" not in df.columns:
-        df["翻訳技法の選出理由"] = ""
+    if "DMIS" not in df.columns:
+        df["DMIS"] = ""
+    if "DMISの選出理由" not in df.columns:
+        df["DMISの選出理由"] = ""
     
     # ========================================
     # 3. 行ごとのループ処理
@@ -333,31 +330,31 @@ def main():
         highlight_en = row.get("Highlight_EN", "")
         note = row.get("Note", "")
         annotation = row.get("注釈", "")
-        
+        translation_correspondence = row.get("文化的要素の対応訳","")
+
         # 必須項目チェック
         if pd.isna(highlight_jp) or pd.isna(highlight_en):
             log_error(f"行{index + 2}: 必須データが欠落")
-            df.at[index, "翻訳技法"] = "データ欠落"
-            df.at[index, "翻訳技法の選出理由"] = "Highlight_JPまたはHighlight_ENが空です"
+            df.at[index, "DMIS"] = "データ欠落"
+            df.at[index, "DMISの選出理由"] = "Highlight_JPまたはHighlight_ENが空です"
             error_count += 1
             continue
         
         # プロンプト生成
-        prompt = create_prompt(highlight_jp, highlight_en, note, annotation)
+        prompt = create_prompt(highlight_jp, highlight_en, note, annotation, translation_correspondence)
         
         # API呼び出し
         response = call_gemini_api(prompt)
         
         # 回答をパース
-        translated_term, method, reason = parse_response(response)
+        dmis, reason = parse_response(response)
         
         # DataFrameに書き込み
-        df.at[index, "文化的要素の対応訳"] = translated_term
-        df.at[index, "翻訳技法"] = method
-        df.at[index, "翻訳技法の選出理由"] = reason
+        df.at[index, "DMIS"] = dmis
+        df.at[index, "DMISの選出理由"] = reason
         
         # 成功カウント
-        if "エラー" not in method and "失敗" not in method:
+        if "エラー" not in dmis and "失敗" not in dmis:
             success_count += 1
         else:
             error_count += 1
