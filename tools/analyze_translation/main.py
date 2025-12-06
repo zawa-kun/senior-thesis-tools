@@ -39,8 +39,8 @@ RETRY_DELAY = 5  # リトライ待機時間（秒）
 
 
 # --- ファイルパスの設定 ---
-INPUT_CSV_PATH = "proc_alignment_ineko.csv"
-OUTPUT_CSV_PATH = "raw_analyzed_ineko.csv"
+INPUT_CSV_PATH = "test.csv"
+OUTPUT_CSV_PATH = "test_analyzed.csv"
 LOG_FILE = "error_log.txt"  # エラーログ
 
 
