@@ -31,7 +31,7 @@ MODEL_NAME = "gemini-2.5-flash"
 
 # レート制限対応：10 RPM = # 6秒に1リクエスト
 # 無料範囲内で収まるように設定
-REQUEST_INTERVAL = 6  # 秒
+REQUEST_INTERVAL = 1  # 秒
 
 # リトライ設定
 MAX_RETRIES = 3  # 最大リトライ回数
@@ -39,8 +39,8 @@ RETRY_DELAY = 5  # リトライ待機時間（秒）
 
 
 # --- ファイルパスの設定 ---
-INPUT_CSV_PATH = "proc_translation_ineko.csv"
-OUTPUT_CSV_PATH = "raw_dmis_ineko.csv"
+INPUT_CSV_PATH = "proc_translation_edwin.csv"
+OUTPUT_CSV_PATH = "raw_dmis_edwin.csv"
 LOG_FILE = "error_log.txt"  # エラーログ
 
 
