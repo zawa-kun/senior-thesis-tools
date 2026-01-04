@@ -7,19 +7,19 @@ from pathlib import Path
 plt.rcParams['font.family'] = 'MS Gothic'
 
 # --- CSV 読み込み ---
-df = pd.read_csv("dmis_ineko.csv",encoding="utf-8", engine="python")
+df = pd.read_csv("test_data.csv",encoding="utf-8", engine="python")
 
 # --- 必要な2列だけ抽出 ---
-col_method = "translation_method"
-col_dmis   = "dmis_stage"
+col_method = "翻訳技法"
+col_dmis   = "DMIS"
 
 # --- 前処理：文字列化前後スペース削除、欠損は空文字に ---
 df[col_method] = df[col_method].astype(str).str.strip().fillna("")
 df[col_dmis]   = df[col_dmis].astype(str).str.strip().fillna("")
 
 # 想定するカテゴリ
-dmis_order = ['否認', '防衛', '最小化', '受容', '適応', '統合']
-methods_order = ['借用', '仮借', '直訳', '転換', '調整', '等価', '翻案']
+dmis_order = ['Denial', 'Minimization', 'Acceptance', 'Adaptation']
+methods_order = ['Amplification', 'Borrowing', 'Established equivalent', 'Reduction', 'Description', 'Generalization', 'Adaptation', 'Literal translation', 'Particulization', 'Adaptation']
 
 # --- 4. 未知ラベルの存在チェック（ログ出力） ---
 unknown_dmis = sorted(set(df[col_dmis].unique()) - set(dmis_order))
