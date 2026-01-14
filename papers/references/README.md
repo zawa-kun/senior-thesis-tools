@@ -2,8 +2,8 @@
 - **Molina&Albir 2002** 18分類の翻訳技法
 
 
-- **Chaume(2004)** 記号的凝集性（semiotic cohesion）について　未検閲
-- **Ericson 2002** こころ絶賛
+- **Chaume 2004** 記号的凝集性（semiotic cohesion）について　未検閲
+- **Ericson 2001** こころ絶賛
 ## 字幕の制限について
 - [**Díaz Cintas & Remael 2007**](https://www.taylorfrancis.com/books/mono/10.4324/9781315759678/audiovisual-translation-subtitling-jorge-d%C3%ADaz-cintas-aline-remael)
     
