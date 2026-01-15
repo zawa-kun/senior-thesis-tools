@@ -22,3 +22,6 @@
 - [「**”字幕翻訳は1秒4文字”について**」](https://www.eizou-honyaku.com/category/jimaku/014.html)
 
     諸説あり。
+
+## 文化語
+- Newmark 2002 文化語の定義について載っている
